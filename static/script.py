@@ -159,6 +159,47 @@ def pintarCarrito(log=False):
 
     compras.appendChild(fragment)
 
+    pintarFooter(log=log)
+
+def pintarFooter(log=False):
+    global x, Carrito, footer, templateFooter
+
+    fragment = document.createDocumentFragment()
+
+    console.log(f"\n\tlog_[{next(x)}]\nIngresando a pintarFooter")
+    footer.innerHTML = ''
+
+    if Carrito.shape[0] == 0:
+        footer.innerHTML = """
+        <th scope="row" colspan="5">Carrito vacío - comience a comprar!</th>
+        """
+        return
+
+    total = 0
+    for i in range(len(Carrito)):
+        objeto = Carrito.iloc[i].to_frame().T
+        total += objeto['cantidad'].values[0] * int(objeto['precio'].values[0])
+
+    cantidad = Carrito['cantidad'].sum()
+
+    templateFooter.querySelectorAll('td')[0].textContent = cantidad
+    templateFooter.querySelector('span').textContent = total
+    clone = templateFooter.cloneNode(True)
+    fragment.appendChild(clone)
+
+    footer.appendChild(fragment)
+
+
+    btnVaciar = document.getElementById('vaciar-carrito')
+    btnVaciar.addEventListener('click', create_proxy(vaciarCarrito))
+
+def vaciarCarrito(e):
+    global x, Carrito
+    console.log(f"\n\tlog_[{next(x)}]\nIngresando a vaciarCarrito")
+    Carrito = pd.DataFrame(columns=['id', 'title', 'precio', 'cantidad'])
+    pintarCarrito()
+
+
 def main():
     # se crean en el HTML
     global templateCard, items, templateFooter, templateCarrito, compras, footer

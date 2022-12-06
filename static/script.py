@@ -200,6 +200,24 @@ def vaciarCarrito(e):
     pintarCarrito()
 
 
+def btnCantidad(e):
+    global x, Carrito
+    console.log(f"\n\tlog_[{next(x)}]\nIngresando a btnCantidad")
+    console.log(e.target)
+    if e.target.classList.contains('btn-info'):
+        console.log(f"\n\tlog_[{next(x)}]\nAumentando cantidad")
+        Carrito.loc[Carrito.id == e.target.dataset.id, 'cantidad'] += 1
+        pintarCarrito()
+    elif e.target.classList.contains('btn-danger'):
+        console.log(f"\n\tlog_[{next(x)}]\nDisminuyendo cantidad")
+        Carrito.loc[Carrito.id == e.target.dataset.id, 'cantidad'] -= 1
+        if Carrito.loc[Carrito.id == e.target.dataset.id, 'cantidad'].values[0] == 0:
+            console.log(f"\n\tlog_[{next(x)}]\nEliminando producto")
+            Carrito = Carrito[Carrito.id != e.target.dataset.id]
+        pintarCarrito()
+
+    e.stopPropagation()
+
 def main():
     # se crean en el HTML
     global templateCard, items, templateFooter, templateCarrito, compras, footer
@@ -224,7 +242,7 @@ def main():
 
     items.addEventListener('click', create_proxy(addCarrito))
 
-    compras.addEventListener('click', create_proxy(pintarCarrito))
+    compras.addEventListener('click', create_proxy(btnCantidad))
 
     # document.addEventListener("DOMContentLoaded", pyodide.create_proxy(fetchData))
 

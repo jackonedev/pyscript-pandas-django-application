@@ -74,7 +74,7 @@ def pintarCards(data, log=False):
         if log: console.log(f"\n\tlog_[{next(x)}]\n{str(producto)}")
         ### IMPORTANTE
         templateCard.querySelector('h5').textContent = producto['title']
-        templateCard.querySelector('p').textContent = f"${producto['precio']}"
+        templateCard.querySelector('p').textContent = producto['precio']
         templateCard.querySelector('img').setAttribute('src', producto['thumbnailUrl'])
         templateCard.querySelector('.btn-dark').dataset.id = producto['id']
 
@@ -122,10 +122,7 @@ def setCarrito(objeto, log=False):
         'cantidad': 1
     }
 
-
-
-
-    if log: console.log(f"\n\tlog_[{next(x)}]");console.log(str(producto))
+    if log: console.log(f"\n\tlog_[{next(x)}]");console.log(json.dumps(producto))
 
     if Carrito.id.isin([producto[list(producto.keys())[0]]]).any():
         console.log(f"\n\tlog_[{next(x)}]\nYa existe el producto en el carrito")
@@ -137,13 +134,34 @@ def setCarrito(objeto, log=False):
     producto['cantidad'] = Carrito.loc[Carrito.id == producto['id'], 'cantidad'].values[0]
     if log: console.log(f"\n\tlog_[{next(x)}]");console.log(str(producto))
 
+    pintarCarrito(log=log)
 
 
+def pintarCarrito(log=False):
+    global x, Carrito, templateCarrito, compras
 
+    fragment = document.createDocumentFragment()
+    compras.innerHTML = ''
+    
+    console.log(f"\n\tlog_[{next(x)}]\nIngresando a pintarCarrito")
+    console.log(Carrito.to_json(orient='records'))
+    for i in range(len(Carrito)):
+        objeto = Carrito.iloc[i].to_frame().T
+        templateCarrito.querySelector('th').textContent = objeto['id'].values[0]
+        templateCarrito.querySelectorAll('td')[0].textContent = objeto['title'].values[0]
+        templateCarrito.querySelectorAll('td')[1].textContent = objeto['cantidad'].values[0]
+        templateCarrito.querySelector(".btn-info").dataset.id = objeto['id'].values[0]
+        templateCarrito.querySelector(".btn-danger").dataset.id = objeto['id'].values[0]
+        templateCarrito.querySelector('span').textContent = objeto['cantidad'].values[0] * int(objeto['precio'].values[0])
+
+        clone = templateCarrito.cloneNode(True)
+        fragment.appendChild(clone)
+
+    compras.appendChild(fragment)
 
 def main():
     # se crean en el HTML
-    global templateCard, items
+    global templateCard, items, templateFooter, templateCarrito, compras, footer
     # se crean localmente
     global x, Carrito
     x = count(1)
@@ -155,10 +173,18 @@ def main():
     data = fetchData()
     templateCard = document.getElementById('template-card').content
     items = document.getElementById('items')
-    
+    templateFooter = document.getElementById('template-footer').content
+    templateCarrito = document.getElementById('template-carrito').content
+    compras = document.getElementById('compras')
+    footer = document.getElementById('footer')
+
+
     pintarCards(data)
 
     items.addEventListener('click', create_proxy(addCarrito))
+
+    compras.addEventListener('click', create_proxy(pintarCarrito))
+
     # document.addEventListener("DOMContentLoaded", pyodide.create_proxy(fetchData))
 
 

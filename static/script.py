@@ -4,6 +4,7 @@ import pprint
 import pyodide
 from pyodide.http import pyfetch
 
+
 # def load_json_file(path):
 #     """ no funciona"""
 #     with open(path, 'r') as f:
@@ -50,34 +51,42 @@ def read_json():
     }
 ]
 """
-
     return json.loads(json_data)
 
 def fetchData():
-    console.log("Ingresando a fetchData")
+    console.log("\nIngresando a fetchData")
     try:
         # response = load_json_file("./api.json")
         response = read_json()
         data = json.dumps(response, indent=2)
         console.log(data)
-        pintarCards(data)
-
+        return response
     except Exception as error:
         console.log(error)
 
-def pintarCards(data):
+def pintarCards(data, log=False):
+    if log: console.log("\nIngresando a pintarCards")
     fragment = document.createDocumentFragment()
-    templateCard = document.getElementById('template-card').content
-    for item in data:
-        console.log(item)
-        templateCard.querySelector('h5').textContent = item['title']
-        templateCard.querySelector('p').textContent = item['precios']
+    for producto in data:
+        if log: console.log(str(producto))
+        ### IMPORTANTE
+        templateCard.querySelector('h5').textContent = producto['title']
         clone = templateCard.cloneNode(True)
         fragment.appendChild(clone)
+        ###
+    items.appendChild(fragment)
+
+    #     templateCard.querySelector('p').textContent = producto['precios']
 
 def main():
-    console.log("Ingresando al main")
-    fetchData()
+    global templateCard, items
+    console.log("\nIngresando al main")
+    
+    data = fetchData()
+    templateCard = document.getElementById('template-card').content
+    items = document.getElementById('items')
+
+    pintarCards(data)#TODO
     # document.addEventListener("DOMContentLoaded", pyodide.create_proxy(fetchData))
 
 

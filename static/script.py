@@ -53,30 +53,33 @@ def read_json():
 """
     return json.loads(json_data)
 
-def fetchData():
+def fetchData(log=False):
     console.log("\nIngresando a fetchData")
     try:
         # response = load_json_file("./api.json")
         response = read_json()
         data = json.dumps(response, indent=2)
-        console.log(data)
+        if log: console.log(data)
         return response
     except Exception as error:
         console.log(error)
 
 def pintarCards(data, log=False):
-    if log: console.log("\nIngresando a pintarCards")
+    console.log("\nIngresando a pintarCards")
     fragment = document.createDocumentFragment()
     for producto in data:
         if log: console.log(str(producto))
         ### IMPORTANTE
         templateCard.querySelector('h5').textContent = producto['title']
+        templateCard.querySelector('p').textContent = f"${producto['precio']}"
+        templateCard.querySelector('img').setAttribute('src', producto['thumbnailUrl'])
         clone = templateCard.cloneNode(True)
         fragment.appendChild(clone)
         ###
+
+
     items.appendChild(fragment)
 
-    #     templateCard.querySelector('p').textContent = producto['precios']
 
 def main():
     global templateCard, items

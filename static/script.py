@@ -3,6 +3,8 @@ import json
 from pyodide import create_proxy
 from pyodide.http import pyfetch
 from itertools import count
+import pandas as pd
+
 
 # def load_json_file(path):
 #     """ no funciona"""
@@ -88,24 +90,65 @@ def addCarrito(e, log=False):
     
     ### IMPORTANTE
     if e.target.classList.contains('btn-dark'):
-        console.log(f"\n\tlog_[{next(x)}]");console.log(e.target.parentElement)
+        if log: console.log(f"\n\tlog_[{next(x)}]");console.log(e.target.parentElement)
+        setCarrito(e.target.parentElement, log=True)
+    
     e.stopPropagation()
 
-class Carrito:
-    pass
 
 
-def setCarrito(objeto):
+def setCarrito(objeto, log=False):
     """modificar el objeto Carrito"""
-    pass
+    global x, Carrito
+
+    Carrito = pd.concat([Carrito, pd.DataFrame(columns=['id', 'title', 'precio', 'cantidad'])])
+
+
+    def add_row(df, objeto, log=log):
+        """agregar una fila al objeto Carrito"""
+        if log: console.log(f"\n\tlog_[{next(x)}]\nIngresando a add_row")
+        row = pd.DataFrame(objeto, index=[list(objeto.keys())[0]])
+        return pd.concat([df, row])
+
+
+    console.log(f"\n\tlog_[{next(x)}]\nIngresando a setCarrito")
+    if log: console.log(f"\n\tlog_[{next(x)}]");console.log(objeto)
+
+
+    producto = {
+        'id': objeto.querySelector('.btn-dark').dataset.id,
+        'title': objeto.querySelector('h5').textContent,
+        'precio': objeto.querySelector('p').textContent,
+        'cantidad': 1
+    }
+
+
+
+
+    if log: console.log(f"\n\tlog_[{next(x)}]");console.log(str(producto))
+
+    if Carrito.id.isin([producto[list(producto.keys())[0]]]).any():
+        console.log(f"\n\tlog_[{next(x)}]\nYa existe el producto en el carrito")
+        Carrito.loc[Carrito.id == producto['id'], 'cantidad'] += 1
+    else:
+        console.log(f"\n\tlog_[{next(x)}]\nSe crea el producto en el carrito")
+        Carrito = add_row(Carrito, producto)
+
+    producto['cantidad'] = Carrito.loc[Carrito.id == producto['id'], 'cantidad'].values[0]
+    if log: console.log(f"\n\tlog_[{next(x)}]");console.log(str(producto))
+
 
 
 
 
 def main():
+    # se crean en el HTML
     global templateCard, items
-    global x
-    x = count(1)    
+    # se crean localmente
+    global x, Carrito
+    x = count(1)
+    Carrito = pd.DataFrame()
+
     console.log(f"\n\tlog_[{next(x)}]\nIngresando al main")
 
 
